@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="ekino.new_relic.interactor.real.class">Ekino\Bundle\NewRelicBundle\NewRelic\NewRelicInteractor</parameter>
+        <parameter key="ekino.new_relic.interactor.blackhole.class">Ekino\Bundle\NewRelicBundle\NewRelic\BlackholeInteractor</parameter>
+        <parameter key="ekino.new_relic.request_listener.ignored_routes" type="collection" />
+        <parameter key="ekino.new_relic.request_listener.ignored_paths" type="collection" />
+    </parameters>
+
+    <services>
+        <service id="ekino.new_relic.request_listener" class="Ekino\Bundle\NewRelicBundle\Listener\RequestListener">
+            <tag name="kernel.event_listener" event="kernel.request" method="setApplicationName" priority="255"/>
+            <tag name="kernel.event_listener" event="kernel.request" method="setIgnoreTransaction" priority="31"/>
+            <tag name="kernel.event_listener" event="kernel.request" method="setTransactionName" priority="-10"/>
+
+            <argument type="service" id="ekino.new_relic" />
+            <argument type="service" id="ekino.new_relic.interactor" />
+            <argument>%ekino.new_relic.request_listener.ignored_routes%</argument>
+            <argument>%ekino.new_relic.request_listener.ignored_paths%</argument>
+            <argument />
+            <argument />
+        </service>
+
+        <service id="ekino.new_relic.exception_listener" class="Ekino\Bundle\NewRelicBundle\Listener\ExceptionListener">
+            <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException" priority="0"/>
+
+            <argument type="service" id="ekino.new_relic.interactor" />
+        </service>
+
+        <service id="ekino.new_relic.interactor.real" class="%ekino.new_relic.interactor.real.class%" public="false" />
+        <service id="ekino.new_relic.interactor.blackhole" class="%ekino.new_relic.interactor.blackhole.class%" public="false" />
+
+        <service id="ekino.new_relic.interactor.logger" class="Ekino\Bundle\NewRelicBundle\NewRelic\LoggingInteractorDecorator" public="false">
+            <argument type="service" id="ekino.new_relic.interactor.real" />
+            <argument type="service" id="logger" on-invalid="null" />
+        </service>
+
+        <service id="ekino.new_relic" class="Ekino\Bundle\NewRelicBundle\NewRelic\NewRelic" >
+            <argument />
+            <argument />
+            <argument />
+            <argument />
+            <argument type="collection" />
+        </service>
+
+        <service id="ekino.new_relic.response_listener" class="Ekino\Bundle\NewRelicBundle\Listener\ResponseListener">
+            <tag name="kernel.event_listener" event="kernel.response" method="onCoreResponse" priority="-255"/>
+
+            <argument type="service" id="ekino.new_relic" />
+            <argument type="service" id="ekino.new_relic.interactor" />
+            <argument>false</argument>
+            <argument />
+            <argument type="service" id="ekino.new_relic.twig.new_relic_extension" />
+        </service>
+
+        <service id="ekino.new_relic.command_listener" class="Ekino\Bundle\NewRelicBundle\Listener\CommandListener">
+            <tag name="kernel.event_listener" event="console.command" method="onConsoleCommand" priority="0"/>
+            <tag name="kernel.event_listener" event="console.exception" method="onConsoleException" priority="0"/>
+
+            <argument type="service" id="ekino.new_relic" />
+            <argument type="service" id="ekino.new_relic.interactor" />
+            <argument>%ekino.new_relic.request_listener.ignored_commands%</argument>
+        </service>
+
+        <service id="ekino.new_relic.twig.new_relic_extension" class="Ekino\Bundle\NewRelicBundle\Twig\NewRelicExtension">
+            <argument type="service" id="ekino.new_relic" />
+            <argument type="service" id="ekino.new_relic.interactor" />
+            <tag name="twig.extension"/>
+            <argument>false</argument>
+        </service>
+
+        <service id="ekino.new_relic.transaction_naming_strategy.route" class="Ekino\Bundle\NewRelicBundle\TransactionNamingStrategy\RouteNamingStrategy" public="false" />
+
+        <service id="ekino.new_relic.transaction_naming_strategy.controller" class="Ekino\Bundle\NewRelicBundle\TransactionNamingStrategy\ControllerNamingStrategy" public="false" />
+    </services>
+</container>

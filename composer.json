@@ -1,0 +1,33 @@
+{
+    "name": "ekino/newrelic-bundle",
+    "type": "symfony-bundle",
+    "description": "Integrate New Relic into Symfony2",
+    "keywords": ["metric", "performance", "monitoring"],
+    "homepage": "https://github.com/ekino/EkinoNewRelicBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas Rabaix",
+            "email": "thomas.rabaix@ekino.com",
+            "homepage": "http://ekino.com"
+        }
+    ],
+    "require-dev": {
+        "silex/silex": "~1.0",
+        "symfony/framework-bundle": "~2.2|~3.0",
+        "symfony/console": "~2.2|~3.0",
+        "twig/twig": "1.*"
+    },
+    "suggest": {
+        "sonata-project/block-bundle": "2.2.*@dev"
+    },
+    "autoload": {
+        "psr-0": { "Ekino\\Bundle\\NewRelicBundle": "" }
+    },
+    "target-dir": "Ekino/Bundle/NewRelicBundle",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.3-dev"
+        }
+    }
+}
